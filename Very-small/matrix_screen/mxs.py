@@ -1,6 +1,8 @@
 # a matrix screen saver 
 # code is direct so i cant be explaining anything
+import os
 import sys
+import subprocess
 import random
 import time
 
@@ -8,6 +10,7 @@ WIDTH = 70
 GREEN = "\33[32m"
 RESET = "\33[0m"
 try: 
+    subprocess.run("cls" if os.name == "nt" else "clear")
     columns = [0] * WIDTH
 
     while True:
