@@ -1,3 +1,5 @@
+# a matrix screen saver 
+# code is direct so i cant be explaining anything
 import sys
 import random
 import time
@@ -20,4 +22,5 @@ try:
         print()
         time.sleep(0.1)
 except KeyboardInterrupt:
+    print (f"{"\33c"}{"\33[34m"}kill program")
     sys.exit()
