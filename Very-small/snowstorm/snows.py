@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import os
 import random 
 import subprocess
@@ -42,7 +40,7 @@ def show_show_storm(row: int, column: int, density: int = 4):
                 print(' ', end='')
         print()
 
-    print(f"{"\33[33m"}{FULL * column + '\n' + FULL * row}")
+    print(f"{"\33[33m"}{FULL * column + '\n' + FULL * row}{"\33[0m"}")
     time.sleep(0.323)
 
 def main():
