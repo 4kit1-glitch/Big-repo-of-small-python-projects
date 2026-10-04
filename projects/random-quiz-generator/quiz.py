@@ -5,9 +5,9 @@
 # randomises the same questions
 # writes answers to the 35 files 
 
-import os
-from pathlib import Path
 import random
+from pathlib import Path
+
 
 capitals = {'Alabama': 'Montgomery', 'Alaska': 'Juneau', 'Arizona':
     'Phoenix', 'Arkansas': 'Little Rock', 'California': 'Sacramento', 'Colorado':

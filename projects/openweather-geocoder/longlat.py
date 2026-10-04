@@ -3,6 +3,7 @@
 import sys
 import requests
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 
@@ -12,7 +13,7 @@ contry_code = "US"
 
 
 
-load_dotenv("/home/kit/Kitstdios/BROSPP/medium/openWeather/appkeys.env")
+load_dotenv(Path(__file__).with_name("appkeys.env"))
 
 def get_env(key : str, required: bool = True) -> (str | None):
     """fetch a required api key"""
