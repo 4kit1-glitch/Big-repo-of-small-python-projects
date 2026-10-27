@@ -1,6 +1,7 @@
 # a simple commic downloader for the https://xkcd​.com website
 
 
+import re
 import random
 import requests
 import bs4
@@ -58,17 +59,37 @@ def get_prev_link(html_content: str) -> str | None:
     
     
 
-def url_to_filename():
-    
+def url_to_filename(url: str) -> str:
+    parsed_url = urlparse(url)
 
-def download_image(url: str) -> Path:
+    raw_name = parsed_url.netloc if parsed_url.netloc else parsed_url.path
+
+    raw_name.rstrip("/")
+
+    safe_name = re.sub(r'[^a-zA-Z0-9\.\-]', '_', raw_name)
+
+    return safe_name if safe_name else "unamed"
+
+
+def download_image(url: str) -> None:
     try:
         response = requests.get(url, timeout=10, headers=HEADERS)
+        response.raise_for_status()
 
         STORE_PATH.mkdir(parents=True, exist_ok=True)
 
-        Path.touch(url.strip(""))
-    pass
+        filepath = STORE_PATH / f"{url_to_filename(url)}.png"
+
+        Path.touch(filepath, exist_ok=True)
+
+        with filepath.open("w+b") as file:
+            file.write(response.content)
+    except requests.RequestException:
+        pass
+    except OSError:
+        pass
+
+    
 
 def main():
     prev_link = ""
@@ -76,12 +97,21 @@ def main():
 
     print("Starting...")
     while True:
-        if prev_link == "#":
+        if prev_link == "#" or prev_link is None:
             break
 
         web_str = get_html(BASE_URL + prev_link)
+
+        if web_str is None:
+            break
+
         prev_link = get_prev_link(web_str)
-        download_image(get_img_link(web_str))
+        img_lnk = get_img_link(web_str)
+
+        if not img_lnk:
+            break
+
+        download_image(img_lnk)
 
         num += 1
     
