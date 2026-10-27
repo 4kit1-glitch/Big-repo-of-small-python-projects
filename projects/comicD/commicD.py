@@ -1,6 +1,6 @@
 # a simple commic downloader for the https://xkcd​.com website
 
-
+import sys
 import re
 import random
 import requests
@@ -74,7 +74,7 @@ def url_to_filename(url: str) -> str:
 
 
 def download_image(url: str) -> None:
-    filepath = STORE_PATH / f"{url_to_filename(url)}.png"
+    filepath = STORE_PATH / f"{url_to_filename(url)}"
 
     try:
         response = requests.get(url, timeout=10, headers=HEADERS, stream=True)
@@ -115,8 +115,11 @@ def main():
         if not img_lnk:
             break
 
+        print(f"downloading image {img_lnk}", end="")
+
         download_image(img_lnk)
 
+        print(" ....done")
         num += 1
 
         sleep(random.randint(1, 3))
@@ -126,4 +129,8 @@ def main():
 
 
 if  __name__ == "__main__":
-    main()
+    try:  
+        main()
+    except KeyboardInterrupt:
+        print("keyboard exit")
+        sys.exit(0)
