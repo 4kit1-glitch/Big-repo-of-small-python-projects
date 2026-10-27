@@ -18,8 +18,6 @@ STORE_PATH = Path.cwd() / "downloaded_comics"
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Accept-Encoding': 'gzip, deflate, br',
     'Connection': 'keep-alive',
     'Upgrade-Insecure-Requests': '1',
     'Sec-Fetch-Dest': 'document',
@@ -34,17 +32,20 @@ def get_html(url: str) -> str | None:
     try:
         response = requests.get(url, timeout=10, headers=HEADERS)
         response.raise_for_status()
+
         return response.text
-    except requests.RequestException:
+    except requests.RequestException as err:
+        print(f"failed to get html: {err}")
         return None
 
 def get_img_link(html_content: str) -> str | None:
     soup = bs4.BeautifulSoup(html_content, "html.parser")
     try:
-        link = str(soup.select("br a")[1].get("href"))
+        link = str(soup.select("br+a")[1].get("href"))
         return link
-    except IndexError:
-        return
+    except IndexError as err:
+        print(f"an index error occured: {err} ")
+        return None
     
 def get_prev_link(html_content: str) -> str | None:
     soup = bs4.BeautifulSoup(html_content, "html.parser")
@@ -53,7 +54,7 @@ def get_prev_link(html_content: str) -> str | None:
 
     if link_tag:
         link = link_tag.get("href")
-        link = BASE_URL + str(link) if link else None
+        link = str(link) if link else None
 
         return link
     
@@ -63,8 +64,9 @@ def url_to_filename(url: str) -> str:
     parsed_url = urlparse(url)
 
     raw_name = parsed_url.netloc if parsed_url.netloc else parsed_url.path
+    raw_name = Path(parsed_url.path).name
 
-    raw_name.rstrip("/")
+    raw_name = raw_name.rstrip("/")
 
     safe_name = re.sub(r'[^a-zA-Z0-9\.\-]', '_', raw_name)
 
@@ -72,22 +74,24 @@ def url_to_filename(url: str) -> str:
 
 
 def download_image(url: str) -> None:
+    filepath = STORE_PATH / f"{url_to_filename(url)}.png"
+
     try:
-        response = requests.get(url, timeout=10, headers=HEADERS)
+        response = requests.get(url, timeout=10, headers=HEADERS, stream=True)
         response.raise_for_status()
 
         STORE_PATH.mkdir(parents=True, exist_ok=True)
 
-        filepath = STORE_PATH / f"{url_to_filename(url)}.png"
+        with filepath.open("wb") as file:
 
-        Path.touch(filepath, exist_ok=True)
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    file.write(chunk)
 
-        with filepath.open("w+b") as file:
-            file.write(response.content)
-    except requests.RequestException:
-        pass
-    except OSError:
-        pass
+    except requests.RequestException as e:
+        print(f"Network error downloading {url}: {e}")
+    except OSError as e:
+        print(f"File save error for {url}: {e}")
 
     
 
@@ -114,12 +118,12 @@ def main():
         download_image(img_lnk)
 
         num += 1
+
+        sleep(random.randint(1, 3))
     
 
     print(f"download complete {num} commics downloaded to {STORE_PATH}")
 
 
-
-if __name__ == "__main__":
+if  __name__ == "__main__":
     main()
-    
