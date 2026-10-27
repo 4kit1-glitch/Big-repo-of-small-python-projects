@@ -25,6 +25,7 @@ credentials.*
 *.sqlite
 *.sqlite3
 *.db
+*.png
 
 # Test, type-checker, and build artifacts
 .pytest_cache/
