@@ -4,7 +4,7 @@ from pathlib import Path
 
 BASE_URL = "https://quotes.toscrape.com/api/quotes"
 
-PARTIAL_PATH = Path.cwd() / "qoutes" /"qoutes.partial.txt"
+PARTIAL_PATH = Path.cwd() / "qoutes" /"quotes.partial.txt"
 FULL_PATH = Path.cwd() / "quotes" / "qoutes.complete.txt"
 
 HEADERS = {
@@ -93,8 +93,8 @@ def main():
 
         if not is_next_present(pg_data):
             print("No page left")
-            FULL_PATH.parent.mkdir(exist_ok=True, parents=True)
             PARTIAL_PATH.rename(FULL_PATH)
+            break
         
     
 
