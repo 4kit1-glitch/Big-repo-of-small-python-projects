@@ -1,7 +1,5 @@
 import bs4, requests
 from pathlib import Path
-from json import load
-
 BASE_URL = "https://quotes.toscrape.com/scroll"
 
 HEADERS = {
@@ -12,23 +10,35 @@ HEADERS = {
     "X-Requested-With": "XMLHttpRequest",
 }
 
-def get_page_url() -> str:
+def get_page_data(url: str, page_num: int) -> dict | None:
+    try:
+        response = requests.get(url, headers=HEADERS, params={"page": page_num}, timeout=10)
+        response.raise_for_status()
+
+        data = response.json()
+
+        if not isinstance(data, dict):
+            print(f" Expected dict, got {type(data.__name__)}")
+            return None
+
+        return data
+    except requests.RequestException as err:
+        print(f"failed to get page {page_num} data: {err}")
+        return None
+
+
+
+def get_qoutes(data: dict, page_num: int) -> list | None:
+    try:
+        return data["quotes"]
+    except KeyError:
+        return None
+
+
+def is_next_present(data: dict) -> bool:
     pass
 
-def get_page_data(url) -> dict:
-    pass
-
-def get_qoute(data) -> str:
-    pass
-
-def get_author(data) -> str:
-    pass
-
-
-def is_next_present(data) -> bool:
-    pass
-
-def perform_save(qoute, author) -> None:
+def perform_save(qoute: str) -> None:
     pass
 
 def main():
