@@ -57,7 +57,7 @@ def perform_save(quotes: list, path: Path) -> None:
     path.parent.mkdir(exist_ok=True, parents=True)
     with path.open("a", encoding="utf-8") as file:
         for quote in quotes:
-            file.write(quote)
+            file.write(quote + "\n")
 
 
             
@@ -77,7 +77,7 @@ def main():
             print(f"Server error: \t Failed to fetch data from page: {current_page_num}")
             break
 
-        current_page_num = get_current_page_num(pg_data)
+        current_page_num += 1
 
         if not current_page_num:
             print("could not auto get next page number from data")
