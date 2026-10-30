@@ -18,13 +18,17 @@ def get_page_url() -> str:
 def get_page_data(url) -> dict:
     pass
 
-def get_qoute() -> str:
+def get_qoute(data) -> str:
     pass
 
-def get_author() -> str:
+def get_author(data) -> str:
     pass
 
-def perform_save() -> None:
+
+def is_next_present(data) -> bool:
+    pass
+
+def perform_save(qoute, author) -> None:
     pass
 
 def main():
