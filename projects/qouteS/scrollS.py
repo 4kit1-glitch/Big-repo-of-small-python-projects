@@ -4,8 +4,8 @@ from pathlib import Path
 
 BASE_URL = "https://quotes.toscrape.com/api/quotes"
 
-PARTIAL_PATH = Path.cwd() / "qoutes" /"quotes.partial.txt"
-FULL_PATH = Path.cwd() / "quotes" / "qoutes.complete.txt"
+PARTIAL_PATH = Path.cwd() / "quotes" /"quotes.partial.txt"
+FULL_PATH = Path.cwd() / "quotes" / "quotes.complete.txt"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
