@@ -2,7 +2,7 @@ import bs4, requests
 from pathlib import Path
 
 
-BASE_URL = "https://quotes.toscrape.com/api/qoutes"
+BASE_URL = "https://quotes.toscrape.com/api/quotes"
 
 PARTIAL_PATH = Path.cwd() / "qoutes" /"qoutes.partial.txt"
 FULL_PATH = Path.cwd() / "quotes" / "qoutes.complete.txt"
@@ -67,6 +67,8 @@ def main():
     print("starting")
 
     while True:
+
+        print(f"page {current_page_num}")
         pg_data = get_page_data(url=BASE_URL, page_num=current_page_num)    # page data
 
         if not pg_data:
