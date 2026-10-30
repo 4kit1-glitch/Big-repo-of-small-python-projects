@@ -54,9 +54,11 @@ def is_next_present(data: dict) -> bool:
     return bool(data.get("has_next"))
 
 def perform_save(quotes: list, path: Path) -> None:
-    for quote in quotes:
-        with path.open("a") as file:
+    path.parent.mkdir(exist_ok=True, parents=True)
+    with path.open("a", encoding="utf-8") as file:
+        for quote in quotes:
             file.write(quote)
+
 
             
 
