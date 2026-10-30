@@ -1,6 +1,11 @@
 import bs4, requests
 from pathlib import Path
-BASE_URL = "https://quotes.toscrape.com/scroll"
+
+
+BASE_URL = "https://quotes.toscrape.com/api/qoutes"
+
+PARTIAL_PATH = Path.cwd() / "partial"
+FULL_PATH = Path.cwd() / "complete"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
@@ -27,19 +32,38 @@ def get_page_data(url: str, page_num: int) -> dict | None:
         return None
 
 
+def get_current_page_num(data: dict) -> int | None:
+    return data.get("page")
+    
 
-def get_qoutes(data: dict, page_num: int) -> list | None:
+
+def get_qoutes(data: dict) -> list | None:
     try:
-        return data["quotes"]
+        quotes_data = data["quotes"]
+
+        quotes = [ quote.get("text", "").strip("“”") for quote in quotes_data ]
+
+        return quotes
+
     except KeyError:
+        print("Text key not found")
+        return None
+
+    except TypeError:
+        print("Text type not a string")
         return None
 
 
 def is_next_present(data: dict) -> bool:
-    pass
+    return bool(data.get("has_next"))
 
-def perform_save(qoute: str) -> None:
-    pass
+def perform_save(quotes: list, path: Path) -> None:
+    for quote in quotes:
+        with path.open("a") as file:
+            file.write(quote)
+
+            
+
 
 def main():
     pass
