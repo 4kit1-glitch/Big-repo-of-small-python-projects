@@ -79,10 +79,6 @@ def main():
 
         current_page_num += 1
 
-        if not current_page_num:
-            print("could not auto get next page number from data")
-            break
-
         qoutes = get_qoutes(data=pg_data)
 
         if not qoutes:
@@ -92,8 +88,15 @@ def main():
         perform_save(qoutes, path=PARTIAL_PATH)
 
         if not is_next_present(pg_data):
-            print("No page left")
+            print("No pages left. Finalizing file...")
+
+            # Handle the rename safely
+            if FULL_PATH.exists():
+                FULL_PATH.unlink()
+
             PARTIAL_PATH.rename(FULL_PATH)
+
+            print("Download complete!")
             break
         
     
