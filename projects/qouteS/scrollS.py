@@ -93,6 +93,7 @@ def main():
 
         if not is_next_present(pg_data):
             print("No page left")
+            FULL_PATH.parent.mkdir(exist_ok=True, parents=True)
             PARTIAL_PATH.rename(FULL_PATH)
         
     
