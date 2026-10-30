@@ -4,8 +4,8 @@ from pathlib import Path
 
 BASE_URL = "https://quotes.toscrape.com/api/qoutes"
 
-PARTIAL_PATH = Path.cwd() / "partial"
-FULL_PATH = Path.cwd() / "complete"
+PARTIAL_PATH = Path.cwd() / "qoutes" /"qoutes.partial.txt"
+FULL_PATH = Path.cwd() / "quotes" / "qoutes.complete.txt"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
@@ -40,15 +40,11 @@ def get_current_page_num(data: dict) -> int | None:
 def get_qoutes(data: dict) -> list | None:
     try:
         quotes_data = data["quotes"]
-
         quotes = [ quote.get("text", "").strip("“”") for quote in quotes_data ]
-
         return quotes
-
     except KeyError:
         print("Text key not found")
         return None
-
     except TypeError:
         print("Text type not a string")
         return None
@@ -66,7 +62,42 @@ def perform_save(quotes: list, path: Path) -> None:
 
 
 def main():
-    pass
+    current_page_num = 1
+
+    print("starting")
+
+    while True:
+        pg_data = get_page_data(url=BASE_URL, page_num=current_page_num)    # page data
+
+        if not pg_data:
+            print(f"Server error: \t Failed to fetch data from page: {current_page_num}")
+            break
+
+        current_page_num = get_current_page_num(pg_data)
+
+        if not current_page_num:
+            print("could not auto get next page number from data")
+            break
+
+        qoutes = get_qoutes(data=pg_data)
+
+        if not qoutes:
+            print("could not auto get next page number from data")
+            break
+
+        perform_save(qoutes, path=PARTIAL_PATH)
+
+        if not is_next_present(pg_data):
+            print("No page left")
+            PARTIAL_PATH.rename(FULL_PATH)
+        
+    
+
+    
+
+
+
+
 
 if __name__ == "__main__":
     main()
