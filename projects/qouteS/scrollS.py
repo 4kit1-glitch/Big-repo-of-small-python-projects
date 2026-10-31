@@ -1,4 +1,5 @@
-import bs4, requests
+import sys
+import requests
 from pathlib import Path
 from collections import deque
 
@@ -81,10 +82,10 @@ def is_partial_exist():
 
 
 
-def main():
-    current_page_num = 1
+def main(start_page_num: int = 1):
+    current_page_num = start_page_num
 
-    print("starting")
+    print("starting...")
 
     while True:
 
@@ -118,8 +119,15 @@ def main():
 
         current_page_num += 1
 
+def resume_partial() -> None:
+    last_page = get_last_page_num(PARTIAL_PATH)
+
+    print(f"resuming from page {last_page}")
+    main(last_page)
 
 
 
 if __name__ == "__main__":
-    main()
+    if is_partial_exist():
+        sys.exit(resume_partial())
+    sys.exit(main())
