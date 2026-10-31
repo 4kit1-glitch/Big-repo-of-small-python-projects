@@ -123,7 +123,7 @@ def resume_partial() -> None:
     last_page = get_last_page_num(PARTIAL_PATH)
 
     print(f"resuming from page {last_page}")
-    main(last_page)
+    main(last_page + 1)
 
 
 
