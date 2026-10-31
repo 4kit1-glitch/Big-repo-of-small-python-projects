@@ -1,5 +1,6 @@
 import bs4, requests
 from pathlib import Path
+from collections import deque
 
 
 BASE_URL = "https://quotes.toscrape.com/api/quotes"
@@ -53,14 +54,31 @@ def get_qoutes(data: dict) -> list | None:
 def is_next_present(data: dict) -> bool:
     return bool(data.get("has_next"))
 
-def perform_save(quotes: list, path: Path) -> None:
+def perform_save(quotes: list, path: Path, page_num: int) -> None:
     path.parent.mkdir(exist_ok=True, parents=True)
     with path.open("a", encoding="utf-8") as file:
         for quote in quotes:
-            file.write(quote + "\n")
+            file.write(f"{quote}page{page_num}\n")
 
 
-            
+
+
+
+def get_last_page_num(filename: Path) -> int:
+    with filename.open("r", encoding="utf-8") as file:
+        last_line = deque(file, maxlen=1)[0]
+
+
+    return int(last_line.strip().split("page")[1])
+
+
+    
+
+    
+
+def is_partial_exist():
+    return PARTIAL_PATH.exists()
+
 
 
 def main():
@@ -77,7 +95,6 @@ def main():
             print(f"Server error: \t Failed to fetch data from page: {current_page_num}")
             break
 
-        current_page_num += 1
 
         qoutes = get_qoutes(data=pg_data)
 
@@ -85,7 +102,7 @@ def main():
             print("could not auto get next page number from data")
             break
 
-        perform_save(qoutes, path=PARTIAL_PATH)
+        perform_save(qoutes, path=PARTIAL_PATH, page_num=current_page_num)
 
         if not is_next_present(pg_data):
             print("No pages left. Finalizing file...")
@@ -98,11 +115,8 @@ def main():
 
             print("Download complete!")
             break
-        
-    
 
-    
-
+        current_page_num += 1
 
 
 
