@@ -3,10 +3,9 @@ import requests
 from pathlib import Path
 from collections import deque
 
-
 BASE_URL = "https://quotes.toscrape.com/api/quotes"
 
-PARTIAL_PATH = Path.cwd() / "quotes" /"quotes.partial.txt"
+PARTIAL_PATH = Path.cwd() / "quotes" / "quotes.partial.txt"
 FULL_PATH = Path.cwd() / "quotes" / "quotes.complete.txt"
 
 HEADERS = {
@@ -25,19 +24,19 @@ def get_page_data(url: str, page_num: int) -> dict | None:
         data = response.json()
 
         if not isinstance(data, dict):
-            print(f" Expected dict, got {type(data.__name__)}")
+            print(f"Expected dict, got {type(data).__name__}")
             return None
 
         return data
     except requests.RequestException as err:
-        print(f"failed to get page {page_num} data: {err}")
+        print(f"Failed to get page {page_num} data: {err}")
         return None
 
 
-def get_qoutes(data: dict) -> list | None:
+def get_quotes(data: dict) -> list | None:
     try:
         quotes_data = data["quotes"]
-        quotes = [ quote.get("text", "").strip("“”") for quote in quotes_data ]
+        quotes = [quote.get("text", "").strip("“”") for quote in quotes_data]
         return quotes
     except KeyError:
         print("Text key not found")
@@ -63,19 +62,27 @@ def perform_save(quotes: list, path: Path, page_num: int) -> None:
 
 def get_last_page_num(filename: Path) -> int:
     with filename.open("r", encoding="utf-8") as file:
-        last_line = deque(file, maxlen=1)[0]
+        lines = deque(file, maxlen=1)
+        
+        # Check if the file is empty
+        if not lines:
+            return 0 
+            
+        last_line = lines[0].strip()
+
+    # Check if the line matches our delimiter format
+    if last_line.startswith("||PAGE:") and last_line.endswith("||"):
+        try:
+            page_str = last_line.replace("||PAGE:", "").replace("||", "")
+            return int(page_str)
+        except ValueError:
+            return 0
+            
+    return 0
 
 
-    return int(last_line.strip().split("page")[1])
-
-
-    
-
-    
-
-def is_partial_exist():
+def is_partial_exist() -> bool:
     return PARTIAL_PATH.exists()
-
 
 
 def main(start_page_num: int = 1):
@@ -84,43 +91,54 @@ def main(start_page_num: int = 1):
     print("starting...")
 
     while True:
-
         print(f"page {current_page_num}")
-        pg_data = get_page_data(url=BASE_URL, page_num=current_page_num)    # page data
+        pg_data = get_page_data(url=BASE_URL, page_num=current_page_num)
 
         if not pg_data:
             print(f"Server error: \t Failed to fetch data from page: {current_page_num}")
             break
 
+        quotes = get_quotes(data=pg_data)
 
-        qoutes = get_qoutes(data=pg_data)
-
-        if not qoutes:
-            print("could not auto get next page number from data")
+        if not quotes:
+            print(f"Could not extract quotes from page {current_page_num}")
             break
 
-        perform_save(qoutes, path=PARTIAL_PATH, page_num=current_page_num)
+        perform_save(quotes, path=PARTIAL_PATH, page_num=current_page_num)
 
         if not is_next_present(pg_data):
             print("No pages left. Finalizing file...")
 
-            # Handle the rename safely
+            # Read the partial file and filter out the page markers
+            with PARTIAL_PATH.open("r", encoding="utf-8") as f:
+                clean_lines = [line for line in f if not line.startswith("||PAGE:")]
+
+            # Delete the old complete file if it exists
             if FULL_PATH.exists():
                 FULL_PATH.unlink()
 
-            PARTIAL_PATH.rename(FULL_PATH)
+            # Write the clean data to the final file
+            with FULL_PATH.open("w", encoding="utf-8") as f:
+                f.writelines(clean_lines)
 
-            print("Download complete!")
+            # Delete the partial file since we are done with it
+            PARTIAL_PATH.unlink()
+
+            print("Download complete! File cleaned and saved.")
             break
 
         current_page_num += 1
 
+
 def resume_partial() -> None:
     last_page = get_last_page_num(PARTIAL_PATH)
 
-    print(f"resuming from page {last_page}")
-    main(last_page + 1)
-
+    if last_page == 0:
+        print("Partial file is empty or missing page markers. Starting from scratch...")
+        main(1)
+    else:
+        print(f"Resuming from page {last_page + 1}...")
+        main(last_page + 1)
 
 
 if __name__ == "__main__":
@@ -129,5 +147,5 @@ if __name__ == "__main__":
             sys.exit(resume_partial())
         sys.exit(main())
     except KeyboardInterrupt:
-        print("keyboard interrupt")
+        print("\nKeyboard interrupt detected. Progress saved. Exiting safely.")
         sys.exit()
