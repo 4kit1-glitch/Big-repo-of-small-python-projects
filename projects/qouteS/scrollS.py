@@ -147,5 +147,5 @@ if __name__ == "__main__":
             sys.exit(resume_partial())
         sys.exit(main())
     except KeyboardInterrupt:
-        print("\nKeyboard interrupt detected. Progress saved. Exiting safely.")
+        print("\nKeyboard interrupt detected. Progress saved. Exiting..")
         sys.exit()
