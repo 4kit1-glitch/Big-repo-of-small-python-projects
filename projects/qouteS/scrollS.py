@@ -34,11 +34,6 @@ def get_page_data(url: str, page_num: int) -> dict | None:
         return None
 
 
-def get_current_page_num(data: dict) -> int | None:
-    return data.get("page")
-    
-
-
 def get_qoutes(data: dict) -> list | None:
     try:
         quotes_data = data["quotes"]
@@ -55,14 +50,15 @@ def get_qoutes(data: dict) -> list | None:
 def is_next_present(data: dict) -> bool:
     return bool(data.get("has_next"))
 
+
 def perform_save(quotes: list, path: Path, page_num: int) -> None:
     path.parent.mkdir(exist_ok=True, parents=True)
     with path.open("a", encoding="utf-8") as file:
         for quote in quotes:
-            file.write(f"{quote}page{page_num}\n")
-
-
-
+            file.write(f"{quote}\n")
+        
+        # Write the page number on its own line using a unique delimiter
+        file.write(f"||PAGE:{page_num}||\n")
 
 
 def get_last_page_num(filename: Path) -> int:
@@ -128,6 +124,10 @@ def resume_partial() -> None:
 
 
 if __name__ == "__main__":
-    if is_partial_exist():
-        sys.exit(resume_partial())
-    sys.exit(main())
+    try:
+        if is_partial_exist():
+            sys.exit(resume_partial())
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("keyboard interrupt")
+        sys.exit()
