@@ -25,7 +25,7 @@ SHOW_CURSOR = "\033[?25h"
 PLAY_VOLUME = 0.3
 
 class AudioPlayer:
-    def __init__(self, file_path: Path | None) -> None:
+    def __init__(self, file_path: Path | None):
         self.is_playing = False
         if not file_path or not file_path.exists() or not pygame:
             return
@@ -47,6 +47,7 @@ class AudioPlayer:
 def center_text(text: str) -> str:
     """Dynamically centers text based on the current terminal width."""
     terminal_width = shutil.get_terminal_size().columns
+
     # If the quote is longer than the terminal, just strip and return
     if len(text) >= terminal_width:
         return text.strip()
@@ -64,8 +65,7 @@ def animate_fade(text: str, fade_in: bool = True, speed: float = 0.02) -> None:
 
     for color in color_range:
         # \r moves cursor to start, \033[K clears the line to prevent leftover text
-        sys.stdout.write(f"\033[38;5;{color}m{text}\r\033[K")
-        sys.stdout.flush()
+        print(f"\033[38;5;{color}m{text}\033[0m\r", end="", flush=True)
         time.sleep(speed)
 
 
