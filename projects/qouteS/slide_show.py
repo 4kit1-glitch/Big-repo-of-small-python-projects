@@ -1,8 +1,12 @@
+import os
 import time
 import sys
 import warnings
 from pathlib import Path
 
+
+# ignore and remove pygame support texts
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="pygame")
 
 try:
