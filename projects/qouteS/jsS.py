@@ -43,7 +43,7 @@ def get_data(web_content: str) -> None | list:
 
         return obj
             
-    except (TypeError, IndexError):
+    except (TypeError, IndexError) as err:
         print(f"Failed top extract page data: {err}")
 
 def save_quotes():
